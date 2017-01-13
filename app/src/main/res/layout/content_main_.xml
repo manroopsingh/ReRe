@@ -22,13 +22,14 @@
             android:orientation="vertical"
             android:background="@color/colorWhite">
             <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:padding="5dp">
             <EditText
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:hint="Search for restaurants"
                 android:textAlignment="textStart"
                 android:textColorHint="@color/colorGray"
@@ -36,6 +37,11 @@
                 android:padding="5dp"
                 android:id="@+id/searchBar"
                 />
+                <Button
+                    android:onClick="testToken"
+                    android:text="Text token"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
 
@@ -45,6 +51,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"/>
 
+
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,12 +61,22 @@
                 android:paddingLeft="10dp"
                 android:id="@+id/text_listhead" />
 
+
         </LinearLayout>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="2dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/yelp_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </android.support.v7.widget.RecyclerView>
 
             <ListView
                 android:id="@+id/res_list"

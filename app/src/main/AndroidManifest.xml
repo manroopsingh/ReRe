@@ -32,36 +32,42 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             tools:replace="android:theme" />
         <activity
-
-            android:name="com.example.manroop.ReRe.activities.Main_Activity"
+            android:name=".activities.Main_Activity"
             android:label="@string/title_activity_main_"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
-            android:name="com.example.manroop.ReRe.activities.AddRes"
+            android:name=".activities.AddRes"
             android:label="@string/title_add_res"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.example.manroop.ReRe.activities.ActResDetails"
+            android:name=".activities.ActResDetails"
             android:label="@string/title_add_res_details"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.example.manroop.ReRe.activities.MakeReservation"
+            android:name=".activities.MakeReservation"
             android:label="@string/title_make_reservation"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.example.manroop.ReRe.activities.ActMyReservations"
+            android:name=".activities.ActMyReservations"
             android:label="@string/title_activity_act_my_reservations"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.example.manroop.ReRe.activities.ActOrder"
+            android:name=".activities.ActOrder"
+            android:label="@string/title_activity_act_order"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.ReviewActivity"
             android:label="@string/title_activity_act_order"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <receiver android:name="com.example.manroop.ReRe.receivers.DelayedNotif" />
+        <service
+            android:name=".services.MyIntentService"
+            android:exported="false" />
+
+        <receiver android:name=".receivers.DelayedNotif" />
         android:theme="@style/AppTheme.NoActionBar" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -76,7 +82,7 @@
         <!-- android:value="@string/google_maps_key" /> -->
 
         <activity
-            android:name="com.example.manroop.ReRe.activities.MapsActivity"
+            android:name=".activities.MapsActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme.NoActionBar" />
 
@@ -86,11 +92,11 @@
             android:exported="true" />
 
         <activity
-            android:name="com.example.manroop.ReRe.activities.ActAccount"
+            android:name=".activities.ActAccount"
             android:label="@string/title_activity_act_account"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.example.manroop.ReRe.activities.LoadingPage"
+            android:name=".activities.LoadingPage"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -98,8 +104,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.manroop.ReRe.activities.MyCart" />
+        <activity android:name=".activities.MyCart" />
 
+        <service
+            android:name=".services.RestaurantIntentService"
+            android:exported="false" />
+        <service
+            android:name=".services.AccessTokenIntentService"
+            android:exported="false" />
+        <service
+            android:name=".services.GeocodingIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

@@ -97,7 +97,7 @@ public class ActMyReservations extends AppCompatActivity implements NavigationVi
 
     protected List<Reservation> queryReservations() {
         myFirebaseRef = new Firebase("https://resplendent-heat-2353.firebaseio.com");
-        final Firebase refReservations =  myFirebaseRef.child("Reservations");
+        final Firebase refReservations = myFirebaseRef.child("Reservations");
         Query q = refReservations.orderByChild("day");
 
         reservationList = new ArrayList<>();

@@ -89,7 +89,7 @@ public class ActResDetails extends AppCompatActivity implements NavigationView.O
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.resmap);
         mapFragment.getMapAsync((this));
-        resmap = mapFragment.getMap();
+        mapFragment.getMapAsync(this);
 
         resmap.getUiSettings().setScrollGesturesEnabled(false);
         resmap.getUiSettings().setZoomControlsEnabled(false);

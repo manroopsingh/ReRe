@@ -203,7 +203,7 @@ public class ResListAdapter extends ResListFirebase<ResData> {
 
 
         //mark tags of each restaurant in the listview
-        Main_Activity.googleMap.addMarker(new MarkerOptions().position(new LatLng(resLat, resLng)).title(name));
+        Main_Activity.mMap.addMarker(new MarkerOptions().position(new LatLng(resLat, resLng)).title(name));
 
 
         int wt = Integer.parseInt(waittime);

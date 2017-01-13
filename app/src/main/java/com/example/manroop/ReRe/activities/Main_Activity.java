@@ -1,27 +1,32 @@
 package com.example.manroop.ReRe.activities;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,6 +34,12 @@ import android.widget.Toast;
 
 import com.example.manroop.ReRe.R;
 import com.example.manroop.ReRe.adapters.ResListAdapter;
+import com.example.manroop.ReRe.adapters.RestaurantListAdapter;
+import com.example.manroop.ReRe.pojos.yelpBusinesses.Business;
+import com.example.manroop.ReRe.pojos.yelpBusinesses.YelpBusiness;
+import com.example.manroop.ReRe.services.AccessTokenIntentService;
+import com.example.manroop.ReRe.services.GeocodingIntentService;
+import com.example.manroop.ReRe.services.RestaurantIntentService;
 import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -38,17 +49,41 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.example.manroop.ReRe.R.id.map;
 
 public class Main_Activity extends AppCompatActivity
         implements LocationListener, NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10;
+    private static final String TAG = "MainActivityTag";
 
     public static String phone = "6508669800";
 
     private GoogleApiClient mGoogleApiClient;
     public static String Latitude = "37", Longitude = "-121";
     public static Location myLoc = new Location(LocationManager.NETWORK_PROVIDER);
-    public static GoogleMap googleMap;
+    public static GoogleMap mMap;
     public static String rName, rWaittime;
+    public String permissions[];
+
+    private Location mLastLocation, location;
+    private LocationManager locationManager;
+
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
+    private RestaurantListAdapter restaurantListAdapter;
+    private List<com.example.manroop.ReRe.pojos.yelpBusinesses.Business> yelp_business = new ArrayList<>();
+    private List<com.example.manroop.ReRe.pojos.yelpBusinesses.Business> yelp_business1 = new ArrayList<>();
+    private YelpBusiness yelpBusiness;
+    private String address;
+
+    private BroadcastReceiver broadcastReceiver;
+    private IntentFilter intentFilter;
 
     ResListAdapter adapter;
     public String res_key;
@@ -64,33 +99,11 @@ public class Main_Activity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //testing token initialisation
 
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(map);
         mapFragment.getMapAsync(this);
-
-        googleMap = mapFragment.getMap();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-
-        googleMap.setMyLocationEnabled(true);
-
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true);
-        Location location = locationManager.getLastKnownLocation(bestProvider);
-        if (location != null) {
-            onLocationChanged(location);
-        }
-        locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -102,9 +115,12 @@ public class Main_Activity extends AppCompatActivity
         }
 
 
-        Firebase.setAndroidContext(this);
-        myFirebaseRef = new Firebase("https://resplendent-heat-2353.firebaseio.com");
-        refRestaurants = myFirebaseRef.child("Restaurants");
+        verifyPermissions();
+
+        registerBroadcastReceiver();
+
+        setupRecyclerView();
+
 
         //map elements from view
         res_name = (TextView) findViewById(R.id.text_res_name);
@@ -112,25 +128,41 @@ public class Main_Activity extends AppCompatActivity
         search = (EditText) findViewById((R.id.searchBar));
 
 
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, true);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-        res_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                rName = ((TextView) view.findViewById(R.id.text_res_name)).getText().toString();
-                rWaittime = ((Button) view.findViewById(R.id.btn_wait_time)).getText().toString();
+            return;
+        }
+        location = locationManager.getLastKnownLocation(bestProvider);
+        Latitude = (String.valueOf(location.getLatitude()));
+        Longitude = (String.valueOf(location.getLongitude()));
+        locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
 
-                //pass values through intent
-                Intent in = new Intent(getApplicationContext(), ActResDetails.class);
-                in.putExtra("res_name", rName);
-                in.putExtra("waittime", rWaittime);
-                startActivity(in);
+//        Firebase.setAndroidContext(this);
+//        myFirebaseRef = new Firebase("https://resplendent-heat-2353.firebaseio.com");
+//        refRestaurants = myFirebaseRef.child("Restaurants");
+//
+//
+//        res_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                rName = ((TextView) view.findViewById(R.id.text_res_name)).getText().toString();
+//                rWaittime = ((Button) view.findViewById(R.id.btn_wait_time)).getText().toString();
+//
+//                //pass values through intent
+//                Intent in = new Intent(getApplicationContext(), ActResDetails.class);
+//                in.putExtra("res_name", rName);
+//                in.putExtra("waittime", rWaittime);
+//                startActivity(in);
+//
+//
+//            }
+//        });
 
-
-            }
-        });
-
-        adapter = new ResListAdapter(refRestaurants, this, R.layout.res_list);
-        res_list.setAdapter(adapter);
+//        adapter = new ResListAdapter(refRestaurants, this, R.layout.res_list);
+//        res_list.setAdapter(adapter);
 
 
         search.addTextChangedListener(new TextWatcher() {
@@ -152,7 +184,6 @@ public class Main_Activity extends AppCompatActivity
             }
         });
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -162,8 +193,66 @@ public class Main_Activity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Toast.makeText(getApplicationContext(), "Finding you current location...", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Finding you current location...", Toast.LENGTH_SHORT).show();
 
+
+    }
+
+    private void registerBroadcastReceiver() {
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("yelp");
+        broadcastReceiver = new MyBroadcastReceiver();
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    private void setupRecyclerView() {
+        recyclerView = (RecyclerView) findViewById(R.id.yelp_list);
+        restaurantListAdapter = new RestaurantListAdapter(this, yelp_business1);
+        layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(restaurantListAdapter);
+    }
+
+    private void verifyPermissions() {
+
+        permissions = new String[]{
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION};
+
+        if (ContextCompat.checkSelfPermission(this, String.valueOf(permissions)) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+            } else {
+                ActivityCompat.requestPermissions(this, permissions,
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+            }
+        }
+    }
+
+    public void startyelp() {
+
+        Intent in = new Intent(this, RestaurantIntentService.class);
+        in.putExtra("latitude", Latitude);
+        in.putExtra("longitude", Longitude);
+        startService(in);
+    }
+
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        getToken();
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        unregisterReceiver(broadcastReceiver);
+
+        super.onStop();
 
     }
 
@@ -178,21 +267,87 @@ public class Main_Activity extends AppCompatActivity
     }
 
 
+    public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        location = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (location != null) {
+
+        }
+
+        Latitude = (String.valueOf(location.getLatitude()));
+        Longitude = (String.valueOf(location.getLongitude()));
+        Log.d(TAG, "onConnected: " + Latitude + " " + Longitude);
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+
+
+        Log.d(TAG, "onMapReady: " + Latitude + " " + Longitude);
+        LatLng sydney = new LatLng(Double.parseDouble(Latitude), Double.parseDouble(Longitude));
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.animateCamera(CameraUpdateFactory
+                .newLatLngZoom(sydney, 15));
+
+
+        if (location != null) {
+            onLocationChanged(location);
+        }
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        LatLng latLng = new LatLng(latitude, longitude);
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        Latitude = String.valueOf(latitude);
+        Longitude = String.valueOf(longitude);
+        myLoc.setLongitude(longitude);
+        myLoc.setLatitude(latitude);
+        //Log.d(TAG, "onLocationChanged: " + Latitude + " " + Longitude);
+
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
 
             return true;
@@ -249,53 +404,6 @@ public class Main_Activity extends AppCompatActivity
 
     }
 
-    public void onConnected(Bundle bundle) {
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return;
-//        }
-//        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-//                mGoogleApiClient);
-//        if (mLastLocation != null) {
-//            Latitude = (String.valueOf(mLastLocation.getLatitude()));
-//            Longitude = (String.valueOf(mLastLocation.getLongitude()));
-//
-//
-//        }
-    }
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-//        map.animateCamera( CameraUpdateFactory.zoomTo( 17.0f ) );
-//
-//            map.addMarker(new MarkerOptions().position(new LatLng(Float.parseFloat(Latitude), Float.parseFloat(Longitude))).title("Marker"));
-//            Toast.makeText(getApplicationContext(), Latitude, Toast.LENGTH_LONG).show();
-//            Toast.makeText(getApplicationContext(), Longitude, Toast.LENGTH_LONG).show();
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        LatLng latLng = new LatLng(latitude, longitude);
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-        Latitude = String.valueOf(latitude);
-        Longitude = String.valueOf(longitude);
-        myLoc.setLongitude(longitude);
-        myLoc.setLatitude(latitude);
-
-    }
-
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -310,5 +418,46 @@ public class Main_Activity extends AppCompatActivity
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    public void getToken() {
+
+        Intent intent = new Intent(this, AccessTokenIntentService.class);
+        intent.putExtra("type", "restaurants");
+        startService(intent);
+
+    }
+
+    List<String> addressName;
+
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            addressName = new ArrayList<>();
+            Bundle bundle = intent.getExtras();
+            yelpBusiness = (YelpBusiness) bundle.getSerializable("data");
+            yelp_business = yelpBusiness.getBusinesses();
+            yelp_business1.addAll(yelp_business);
+            restaurantListAdapter.notifyDataSetChanged();
+
+
+            for (Business b : yelp_business) {
+                addressName.add(b.getLocation().getDisplayAddress().toString());
+            }
+            getLatLongFromAddress(addressName);
+
+        }
+
+
+    }
+
+    private void getLatLongFromAddress(List<String> address) {
+
+        Log.d(TAG, "getLatLongFromAddress: ");
+        Intent intent = new Intent(this, GeocodingIntentService.class);
+        intent.putStringArrayListExtra("address", (ArrayList<String>) address);
+        startService(intent);
     }
 }

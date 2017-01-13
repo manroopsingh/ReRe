@@ -82,16 +82,16 @@ public class ReservationListAdapter extends ArrayAdapter<Reservation> {
             viewHolder.rsvMonth = (TextView) row.findViewById(R.id.text_rsvMonth);
 
             viewHolder.rsvTime = (TextView) row.findViewById(R.id.text_rsvTime);
-           // viewHolder.changeReservation = (LinearLayout) row.findViewById(R.id.layout_changeReservation);
-            //viewHolder.viewReservation = (LinearLayout) row.findViewById(R.id.layout_viewReservation);
-            //viewHolder.viewInvoice = (TextView) row.findViewById(R.id.text_viewInvoice);
-            //viewHolder.cancellationPolicy = (TextView) row.findViewById(R.id.text_cancellationPolicy);
-            //viewHolder.changeRsv = (TextView) row.findViewById(R.id.text_changeReservation);
-            //viewHolder.cancelRsv = (TextView) row.findViewById(R.id.text_cancelReservation);
-            //viewHolder.orderFood = (TextView) row.findViewById(R.id.text_orderFood);
-            //viewHolder.writeReview = (TextView) row.findViewById(R.id.text_writeReview);
-            //viewHolder.share = (TextView) row.findViewById(R.id.text_share);
-            //viewHolder.rsv_layout = (LinearLayout)row.findViewById(R.id.layout_rsv);
+//            viewHolder.changeReservation = (LinearLayout) row.findViewById(R.id.layout_changeReservation);
+//            viewHolder.viewReservation = (LinearLayout) row.findViewById(R.id.layout_viewReservation);
+//            viewHolder.viewInvoice = (TextView) row.findViewById(R.id.text_viewInvoice);
+//            viewHolder.cancellationPolicy = (TextView) row.findViewById(R.id.text_cancellationPolicy);
+//            viewHolder.changeRsv = (TextView) row.findViewById(R.id.text_changeReservation);
+//            viewHolder.cancelRsv = (TextView) row.findViewById(R.id.text_cancelReservation);
+//            viewHolder.orderFood = (TextView) row.findViewById(R.id.text_orderFood);
+//            viewHolder.writeReview = (TextView) row.findViewById(R.id.text_writeReview);
+//            viewHolder.share = (TextView) row.findViewById(R.id.text_share);
+//            viewHolder.rsv_layout = (LinearLayout)row.findViewById(R.id.layout_rsv);
 
             row.setTag(viewHolder);
         } else {

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -243,7 +244,7 @@ public class Main_Activity extends AppCompatActivity
     protected void onStart() {
         mGoogleApiClient.connect();
         getToken();
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(brAddressGpsList, new IntentFilter("addressList"));
         super.onStart();
     }
 
@@ -427,7 +428,7 @@ public class Main_Activity extends AppCompatActivity
         startService(intent);
 
     }
-
+    //Members for below method
     List<String> addressName;
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
@@ -455,9 +456,24 @@ public class Main_Activity extends AppCompatActivity
 
     private void getLatLongFromAddress(List<String> address) {
 
-        Log.d(TAG, "getLatLongFromAddress: ");
         Intent intent = new Intent(this, GeocodingIntentService.class);
         intent.putStringArrayListExtra("address", (ArrayList<String>) address);
         startService(intent);
     }
+
+
+    private BroadcastReceiver brAddressGpsList = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Log.d(TAG, "onReceive: ");
+            LatLng resLatLng;
+            List<Location> resLocationList = intent.getParcelableArrayListExtra("addresses");
+            for(Location l : resLocationList){
+                resLatLng = new LatLng(l.getLatitude(),l.getLongitude());
+                mMap.addMarker(new MarkerOptions().position(resLatLng));
+            }
+
+        }
+    };
 }

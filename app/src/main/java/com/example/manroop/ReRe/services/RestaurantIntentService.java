@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.manroop.ReRe.pojos.yelpBusinesses.Business;
 import com.example.manroop.ReRe.pojos.yelpBusinesses.YelpBusiness;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.util.List;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -77,15 +75,11 @@ public class RestaurantIntentService extends IntentService {
         Gson gson = new Gson();
         YelpBusiness yelpBusiness = gson.fromJson(respRes,YelpBusiness.class);
 
-        List<Business> list = yelpBusiness.getBusinesses();
-        for(Business b: list)
-        {
-            Log.d(TAG, "onHandleIntent: " + b.getLocation().getDisplayAddress());
-        }
-
-
-
-
+//        List<Business> list = yelpBusiness.getBusinesses();
+//        for(Business b: list)
+//        {
+//            Log.d(TAG, "onHandleIntent: " + b.getLocation().getDisplayAddress());
+//        }
 
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", yelpBusiness);

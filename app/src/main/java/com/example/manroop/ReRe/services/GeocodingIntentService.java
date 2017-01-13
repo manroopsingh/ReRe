@@ -4,8 +4,10 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.util.Log;
+import android.location.Location;
+import android.support.v4.content.LocalBroadcastManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,14 +20,16 @@ public class GeocodingIntentService extends IntentService {
     }
 
     private List<String> addressList;
+    private ArrayList<Location> addressListGps;
+    private Location location;
 
     @Override
     protected void onHandleIntent(Intent intent) {
 
-
         addressList = intent.getStringArrayListExtra("address");
 
-        //Log.d(TAG, "onHandleIntent: " + address);
+        addressListGps = new ArrayList<>();
+
         double lat = 0.0, lng = 0.0;
 
         Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
@@ -36,13 +40,21 @@ public class GeocodingIntentService extends IntentService {
                 if (addresses.size() > 0) {
                     lat = addresses.get(0).getLatitude();
                     lng = addresses.get(0).getLongitude();
-
-                    Log.d(TAG, "onHandleIntent: "+ address + lat + lng);
+                    location = new Location("");
+                    location.setLatitude(lat);
+                    location.setLongitude(lng);
+                    addressListGps.add(location);
+                    //Log.d(TAG, "onHandleIntent: "+ address + location.getLatitude());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
+        Intent intentBroadcast = new Intent("addressList");
+        intentBroadcast.putParcelableArrayListExtra("addresses", addressListGps);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentBroadcast);
+
 
     }
 }

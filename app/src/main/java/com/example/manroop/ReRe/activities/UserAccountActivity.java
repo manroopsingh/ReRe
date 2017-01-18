@@ -16,7 +16,7 @@ import android.widget.EditText;
 
 import com.example.manroop.ReRe.R;
 
-public class ActAccount extends AppCompatActivity
+public class UserAccountActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     EditText cell;
@@ -37,7 +37,7 @@ public class ActAccount extends AppCompatActivity
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Main_Activity.phone = cell.getText().toString();
+                RestaurantListActivity.phone = cell.getText().toString();
 
             }
         });
@@ -104,14 +104,14 @@ public class ActAccount extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_reserveTable) {
-            Intent in = new Intent(getApplicationContext(), Main_Activity.class);
+            Intent in = new Intent(getApplicationContext(), RestaurantListActivity.class);
             startActivity(in);
         } else if (id == R.id.nav_writeReview) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myReservations) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myAccount) {

@@ -197,7 +197,7 @@ public class ReservationListAdapter extends ArrayAdapter<Reservation> {
 //            @Override
 //            public void onClick(View v) {
 //
-//                Intent in = new Intent(row.getContext(), ActOrder.class);
+//                Intent in = new Intent(row.getContext(), MenuActivity.class);
 //                row.getContext().startActivity(in);
 //                Toast.makeText(row.getContext(), "Order food for your reservation", Toast.LENGTH_SHORT).show();
 //            }

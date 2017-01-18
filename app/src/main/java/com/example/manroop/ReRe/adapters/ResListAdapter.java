@@ -16,8 +16,8 @@ import android.widget.TextView;
 
 import com.example.manroop.ReRe.R;
 import com.example.manroop.ReRe.databeans.ResData;
-import com.example.manroop.ReRe.activities.Main_Activity;
-import com.example.manroop.ReRe.activities.MakeReservation;
+import com.example.manroop.ReRe.activities.RestaurantListActivity;
+import com.example.manroop.ReRe.activities.MakeReservationActivity;
 import com.firebase.client.Query;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -50,10 +50,11 @@ public class ResListAdapter extends ResListFirebase<ResData> {
     @Override
     protected void populateView(View v, ResData resData) {
 
-        myLocation = Main_Activity.myLoc;
+        myLocation = RestaurantListActivity.myLoc;
         float distance;
-        int time;
+
         String restime1, restime2, restime3;
+        int time;
         Date now = new Date();
         now.getTime();
         int hrNow = now.getHours();
@@ -142,7 +143,7 @@ public class ResListAdapter extends ResListFirebase<ResData> {
         btn_waittime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent in = new Intent(v.getContext(), MakeReservation.class);
+                Intent in = new Intent(v.getContext(), MakeReservationActivity.class);
                 in.putExtra("res_name", name);
                 in.putExtra("waittime", waittime);
                 v.getContext().startActivity(in);
@@ -155,7 +156,7 @@ public class ResListAdapter extends ResListFirebase<ResData> {
             @Override
             public void onClick(View v) {
 
-                Intent in = new Intent(v.getContext(), MakeReservation.class);
+                Intent in = new Intent(v.getContext(), MakeReservationActivity.class);
                 in.putExtra("res_name", name);
                 in.putExtra("res_time", btn_restime1.getText().toString());
                 v.getContext().startActivity(in);
@@ -167,7 +168,7 @@ public class ResListAdapter extends ResListFirebase<ResData> {
             @Override
             public void onClick(View v) {
 
-                Intent in = new Intent(v.getContext(), MakeReservation.class);
+                Intent in = new Intent(v.getContext(), MakeReservationActivity.class);
                 in.putExtra("res_name", name);
                 in.putExtra("res_time", btn_restime2.getText().toString());
                 v.getContext().startActivity(in);
@@ -181,7 +182,7 @@ public class ResListAdapter extends ResListFirebase<ResData> {
             @Override
             public void onClick(View v) {
 
-                Intent in = new Intent(v.getContext(), MakeReservation.class);
+                Intent in = new Intent(v.getContext(), MakeReservationActivity.class);
                 in.putExtra("res_name", name);
                 in.putExtra("res_time", btn_restime3.getText().toString());
                 v.getContext().startActivity(in);
@@ -203,7 +204,7 @@ public class ResListAdapter extends ResListFirebase<ResData> {
 
 
         //mark tags of each restaurant in the listview
-        Main_Activity.mMap.addMarker(new MarkerOptions().position(new LatLng(resLat, resLng)).title(name));
+        RestaurantListActivity.mMap.addMarker(new MarkerOptions().position(new LatLng(resLat, resLng)).title(name));
 
 
         int wt = Integer.parseInt(waittime);

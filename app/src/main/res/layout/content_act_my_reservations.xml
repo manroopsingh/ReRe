@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorGray"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activities.ActMyReservations"
+    tools:context=".activities.MyReservationsActivity"
     tools:showIn="@layout/activity_act_my_reservations">
 
     <LinearLayout

@@ -2,7 +2,6 @@ package com.example.manroop.ReRe.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import com.example.manroop.ReRe.pojos.YelpToken;
 import com.google.gson.Gson;
@@ -15,8 +14,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.example.manroop.ReRe.activities.Main_Activity.Latitude;
-import static com.example.manroop.ReRe.activities.Main_Activity.Longitude;
+import static com.example.manroop.ReRe.activities.RestaurantListActivity.Latitude;
+import static com.example.manroop.ReRe.activities.RestaurantListActivity.Longitude;
 
 
 public class AccessTokenIntentService extends IntentService {
@@ -33,11 +32,11 @@ public class AccessTokenIntentService extends IntentService {
     OkHttpClient client;
     public static YelpToken token;
     String respToken;
+    int i ;
 
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
 
         client = new OkHttpClient();
         formBodyToken = new FormBody.Builder()
@@ -45,6 +44,7 @@ public class AccessTokenIntentService extends IntentService {
                 .add("client_id", "9PLcR6tRbK77F49ooLKuKg")
                 .add("client_secret", "1dDMiSn3c8Wfcpr5bTdCeimXWd8Sx6WOWWjqbuxhGWUkweHmTQkvaZjoLBRY30of")
                 .build();
+
         requestToken = new Request.Builder()
                 .url("https://api.yelp.com/oauth2/token")
                 .post(formBodyToken)
@@ -62,10 +62,9 @@ public class AccessTokenIntentService extends IntentService {
         Gson gson = new Gson();
         token = gson.fromJson(respToken, YelpToken.class);
 
-        Log.d(TAG, "onHandleIntent: " + token.getAccessToken());
 
         String type = intent.getStringExtra("type");
-        switch (type){
+        switch (type) {
             case "restaurants":
                 Intent in = new Intent(this, RestaurantIntentService.class);
                 in.putExtra("latitude", Latitude);

@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class ActMyReservations extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MyReservationsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     Firebase myFirebaseRef;
     List<Reservation> reservationList = new ArrayList<>();
     ReservationListAdapter adapter;
@@ -52,7 +52,7 @@ public class ActMyReservations extends AppCompatActivity implements NavigationVi
         final Calendar cl = Calendar.getInstance();
         reservationList = queryReservations();
         System.out.println(reservationList.size());
-        adapter = new ReservationListAdapter(ActMyReservations.this, R.layout.reservation_list, reservationList);
+        adapter = new ReservationListAdapter(MyReservationsActivity.this, R.layout.reservation_list, reservationList);
         displayList.setAdapter(adapter);
 
         displayList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -103,7 +103,7 @@ public class ActMyReservations extends AppCompatActivity implements NavigationVi
         reservationList = new ArrayList<>();
         final long phone;
 
-        phone = Long.parseLong(Main_Activity.phone);
+        phone = Long.parseLong(RestaurantListActivity.phone);
         q.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -178,18 +178,18 @@ public class ActMyReservations extends AppCompatActivity implements NavigationVi
         int id = item.getItemId();
 
         if (id == R.id.nav_reserveTable) {
-            Intent in = new Intent(getApplicationContext(), Main_Activity.class);
+            Intent in = new Intent(getApplicationContext(), RestaurantListActivity.class);
             startActivity(in);
         } else if (id == R.id.nav_writeReview) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myReservations) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myAccount) {
-            Intent in = new Intent(getApplicationContext(), ActAccount.class);
+            Intent in = new Intent(getApplicationContext(), UserAccountActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_share) {

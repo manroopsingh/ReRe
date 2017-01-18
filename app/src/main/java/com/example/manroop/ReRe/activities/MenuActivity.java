@@ -25,7 +25,7 @@ import android.widget.ListView;
 
 import com.example.manroop.ReRe.R;
 
-public class ActOrder extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MenuActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -65,7 +65,7 @@ public class ActOrder extends AppCompatActivity implements NavigationView.OnNavi
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent mIntent = new Intent(ActOrder.this, MyCart.class);
+                Intent mIntent = new Intent(MenuActivity.this, MyCart.class);
                 Bundle mBundle = new Bundle();
                 mBundle.putSerializable("myCart", items);
                 mIntent.putExtras(mBundle);
@@ -132,18 +132,18 @@ public class ActOrder extends AppCompatActivity implements NavigationView.OnNavi
         int id = item.getItemId();
 
         if (id == R.id.nav_reserveTable) {
-            Intent in = new Intent(getApplicationContext(), Main_Activity.class);
+            Intent in = new Intent(getApplicationContext(), RestaurantListActivity.class);
             startActivity(in);
         } else if (id == R.id.nav_writeReview) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myReservations) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myAccount) {
-            Intent in = new Intent(getApplicationContext(), ActAccount.class);
+            Intent in = new Intent(getApplicationContext(), UserAccountActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_share) {

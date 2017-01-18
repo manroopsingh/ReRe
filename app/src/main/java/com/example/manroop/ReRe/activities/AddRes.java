@@ -218,18 +218,18 @@ public class AddRes extends AppCompatActivity implements NavigationView.OnNaviga
         int id = item.getItemId();
 
         if (id == R.id.nav_reserveTable) {
-            Intent in = new Intent(getApplicationContext(), Main_Activity.class);
+            Intent in = new Intent(getApplicationContext(), RestaurantListActivity.class);
             startActivity(in);
         } else if (id == R.id.nav_writeReview) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myReservations) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myAccount) {
-            Intent in = new Intent(getApplicationContext(), ActAccount.class);
+            Intent in = new Intent(getApplicationContext(), UserAccountActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_share) {

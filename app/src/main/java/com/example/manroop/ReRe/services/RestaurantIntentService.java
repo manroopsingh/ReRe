@@ -3,7 +3,7 @@ package com.example.manroop.ReRe.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.example.manroop.ReRe.pojos.yelpBusinesses.YelpBusiness;
 import com.google.gson.Gson;
@@ -32,18 +32,21 @@ public class RestaurantIntentService extends IntentService {
     Request requestRes;
     OkHttpClient client;
     String respRes;
-    String lat, lng, Url;
+    String lat, lng, Url,term;
 
     @Override
     protected void onHandleIntent(Intent intent) {
 
+        term = intent.getStringExtra("search");
         lat = intent.getStringExtra("latitude");
         lng = intent.getStringExtra("longitude");
         Url = "https://api.yelp.com/v3/businesses/search";
 
+        if(intent.getStringExtra("search")!=null)
+            term = intent.getStringExtra("search");
+        else
+            term = "food";
 
-        Log.d(TAG, "onHandleIntent: " + lat + " " +lng);
-//        Log.d(TAG, "onHandleIntent: " + token.getAccessToken());
         client = new OkHttpClient();
 
         HttpUrl url = new HttpUrl.Builder()
@@ -52,7 +55,7 @@ public class RestaurantIntentService extends IntentService {
                 .addPathSegment("v3")
                 .addPathSegment("businesses")
                 .addPathSegment("search")
-                .addQueryParameter("term", "food")
+                .addQueryParameter("term", term)
                 .addQueryParameter("latitude", lat)
                 .addQueryParameter("longitude", lng)
                 .addQueryParameter("limit","20")
@@ -75,19 +78,13 @@ public class RestaurantIntentService extends IntentService {
         Gson gson = new Gson();
         YelpBusiness yelpBusiness = gson.fromJson(respRes,YelpBusiness.class);
 
-//        List<Business> list = yelpBusiness.getBusinesses();
-//        for(Business b: list)
-//        {
-//            Log.d(TAG, "onHandleIntent: " + b.getLocation().getDisplayAddress());
-//        }
-
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", yelpBusiness);
 
-        Intent intent1 = new Intent();
-        intent1.setAction("yelp");
+
+        Intent intent1 = new Intent("restaurantList");
         intent1.putExtras(bundle);
-        sendBroadcast(intent1);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
     }
 
 }

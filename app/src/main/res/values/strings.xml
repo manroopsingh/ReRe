@@ -16,8 +16,8 @@
     <string name="party_prompt">Table for</string>
     <string name="date_button">Choose Date</string>
     <string name="time_button">Select Time</string>
-    <string name="save_button">Make Reservation</string>
-    <string name="confirm_human">Get a verification code</string>
+    <string name="save_button">Reserve</string>
+    <string name="confirm_human">Verify with SMS</string>
     <string name="enter_code">Enter the code here</string>
 
     <string name="title_activity_act_my_reservations">My Reservations</string>
@@ -45,6 +45,8 @@ Reserve has access to great tables because we give our restaurant partners peace
     <string name="non_veg">Meat</string>
     <string name="veg">Vegetarian</string>
     <string name="drink">Drinks</string>
+    <string name="title_review_activity">Top 3 reviews</string>
+    <string name="dummyDescription">Enjoy fine dining in San Jose in a modern setting. Sheer curtains, Venetian plants, warm walls, and terracotta ceilings create an engaging and versatile environment -- perfect for your next romantic evening, group gathering, or business dinner. Our menu, consisting of classics with a creative twist, is sure to have something to please every palate. Hearty steaks, fresh seafood, and flavorful vegetarian plates are among our specialties. Dine in the open-air, European-style courtyard near the fountain for an especially memorable experience. *Citrus offers complimentary valet parking six days a week, Monday through Saturday.</string>
 
 
     <string-array name="menuList">

@@ -24,7 +24,7 @@ public class LoadingPage extends AppCompatActivity {
 
                 } finally {
 
-                    Intent i = new Intent(getApplicationContext(),Main_Activity.class);
+                    Intent i = new Intent(getApplicationContext(),RestaurantListActivity.class);
                     startActivity(i);
                     finish();
                 }

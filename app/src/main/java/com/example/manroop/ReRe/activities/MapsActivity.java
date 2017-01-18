@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private GoogleMap mMap;
-    String lat, lng;
+    private Double lat, lng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +60,15 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         Intent in = getIntent();
-        lat = in.getStringExtra("latitude");
-        lng = in.getStringExtra("longitude");
+        lat = in.getDoubleExtra("latitude",0.00);
+        lng = in.getDoubleExtra("longitude",0.00);
         String rname = in.getStringExtra("res_name");
+
+        setTitle(rname);
 
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+        LatLng sydney = new LatLng(lat, lng);
         mMap.addMarker(new MarkerOptions().position(sydney).title(rname));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
@@ -114,8 +116,8 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.action_directions) {
 
             String myLat, myLng, myLoc, resLoc;
-            myLat = String.valueOf(Main_Activity.myLoc.getLatitude());
-            myLng = String.valueOf(Main_Activity.myLoc.getLongitude());
+            myLat = String.valueOf(RestaurantListActivity.myLoc.getLatitude());
+            myLng = String.valueOf(RestaurantListActivity.myLoc.getLongitude());
             myLoc = myLat + "," + myLng;
             resLoc = lat + "," + lng;
 
@@ -138,18 +140,18 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_reserveTable) {
-            Intent in = new Intent(getApplicationContext(), Main_Activity.class);
+            Intent in = new Intent(getApplicationContext(), RestaurantListActivity.class);
             startActivity(in);
         } else if (id == R.id.nav_writeReview) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myReservations) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myAccount) {
-            Intent in = new Intent(getApplicationContext(), ActAccount.class);
+            Intent in = new Intent(getApplicationContext(), UserAccountActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_share) {

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activities.Main_Activity"
+    tools:context=".activities.RestaurantListActivity"
     tools:showIn="@layout/app_bar_main_"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
@@ -22,13 +22,14 @@
             android:orientation="vertical"
             android:background="@color/colorWhite">
             <LinearLayout
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:padding="5dp">
             <EditText
-                android:layout_width="match_parent"
+                android:layout_weight="10"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Search for restaurants"
                 android:textAlignment="textStart"
@@ -37,13 +38,14 @@
                 android:padding="5dp"
                 android:id="@+id/searchBar"
                 />
-                <Button
-                    android:onClick="testToken"
-                    android:text="Text token"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:onClick="searchRestaurants"
+                    android:src="@android:drawable/ic_search_category_default"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_gravity="center"
+                    android:layout_height="25sp" />
             </LinearLayout>
-
 
             <fragment
                 android:id="@+id/map"
@@ -66,6 +68,7 @@
 
 
         <LinearLayout
+            android:background="@color/colorLightGray"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

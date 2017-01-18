@@ -11,6 +11,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -23,11 +24,9 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,7 +35,9 @@ import android.widget.Toast;
 import com.example.manroop.ReRe.R;
 import com.example.manroop.ReRe.adapters.ResListAdapter;
 import com.example.manroop.ReRe.adapters.RestaurantListAdapter;
+import com.example.manroop.ReRe.pojos.User;
 import com.example.manroop.ReRe.pojos.yelpBusinesses.Business;
+import com.example.manroop.ReRe.pojos.yelpBusinesses.Coordinates;
 import com.example.manroop.ReRe.pojos.yelpBusinesses.YelpBusiness;
 import com.example.manroop.ReRe.services.AccessTokenIntentService;
 import com.example.manroop.ReRe.services.GeocodingIntentService;
@@ -57,11 +58,21 @@ import java.util.List;
 
 import static com.example.manroop.ReRe.R.id.map;
 
-public class Main_Activity extends AppCompatActivity
-        implements LocationListener, NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class RestaurantListActivity extends AppCompatActivity
+        implements
+        LocationListener,
+        NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 10;
+
+    private static final int MY_PERMISSIONS_REQUEST_CODE = 10;
     private static final String TAG = "MainActivityTag";
+
+
+    //User
+    public static User user;
 
     public static String phone = "6508669800";
 
@@ -69,7 +80,6 @@ public class Main_Activity extends AppCompatActivity
     public static String Latitude = "37", Longitude = "-121";
     public static Location myLoc = new Location(LocationManager.NETWORK_PROVIDER);
     public static GoogleMap mMap;
-    public static String rName, rWaittime;
     public String permissions[];
 
     private Location mLastLocation, location;
@@ -88,10 +98,12 @@ public class Main_Activity extends AppCompatActivity
 
     ResListAdapter adapter;
     public String res_key;
-    EditText search;
+    EditText searchBox;
     ListView res_list;
     TextView res_name;
     Firebase myFirebaseRef, refRestaurants;
+
+    int i;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +112,50 @@ public class Main_Activity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //testing token initialisation
 
+
+        user = new User("Manroop Singh", "singh@manroop.com", "6508669800", "1050 Benton Street", "", "Santa Clara", "CA", "USA");
+
+        res_name = (TextView) findViewById(R.id.text_res_name);
+        res_list = (ListView) findViewById(R.id.res_list);
+        searchBox = (EditText) findViewById((R.id.searchBar));
+        verifyPermissions();
+
+        setupGoogleMapAndApi();
+        setupRecyclerView();
+
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        Toast.makeText(getApplicationContext(), "Searching restaurants near you...", Toast.LENGTH_SHORT).show();
+
+
+    }
+
+    private void getCurrentLocation() {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, true);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        location = locationManager.getLastKnownLocation(bestProvider);
+        Latitude = (String.valueOf(location.getLatitude()));
+        Longitude = (String.valueOf(location.getLongitude()));
+        locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
+        onLocationChanged(location);
+    }
+
+    private void setupGoogleMapAndApi() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(map);
         mapFragment.getMapAsync(this);
@@ -114,96 +168,6 @@ public class Main_Activity extends AppCompatActivity
                     .enableAutoManage(this, this)
                     .build();
         }
-
-
-        verifyPermissions();
-
-        registerBroadcastReceiver();
-
-        setupRecyclerView();
-
-
-        //map elements from view
-        res_name = (TextView) findViewById(R.id.text_res_name);
-        res_list = (ListView) findViewById(R.id.res_list);
-        search = (EditText) findViewById((R.id.searchBar));
-
-
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            return;
-        }
-        location = locationManager.getLastKnownLocation(bestProvider);
-        Latitude = (String.valueOf(location.getLatitude()));
-        Longitude = (String.valueOf(location.getLongitude()));
-        locationManager.requestLocationUpdates(bestProvider, 20000, 0, this);
-
-//        Firebase.setAndroidContext(this);
-//        myFirebaseRef = new Firebase("https://resplendent-heat-2353.firebaseio.com");
-//        refRestaurants = myFirebaseRef.child("Restaurants");
-//
-//
-//        res_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                rName = ((TextView) view.findViewById(R.id.text_res_name)).getText().toString();
-//                rWaittime = ((Button) view.findViewById(R.id.btn_wait_time)).getText().toString();
-//
-//                //pass values through intent
-//                Intent in = new Intent(getApplicationContext(), ActResDetails.class);
-//                in.putExtra("res_name", rName);
-//                in.putExtra("waittime", rWaittime);
-//                startActivity(in);
-//
-//
-//            }
-//        });
-
-//        adapter = new ResListAdapter(refRestaurants, this, R.layout.res_list);
-//        res_list.setAdapter(adapter);
-
-
-        search.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                //Main_Activity.this.adapter.getFilter().filter(cs);
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        Toast.makeText(getApplicationContext(), "Finding you current location...", Toast.LENGTH_SHORT).show();
-
-
-    }
-
-    private void registerBroadcastReceiver() {
-        intentFilter = new IntentFilter();
-        intentFilter.addAction("yelp");
-        broadcastReceiver = new MyBroadcastReceiver();
-        registerReceiver(broadcastReceiver, intentFilter);
     }
 
     private void setupRecyclerView() {
@@ -220,41 +184,87 @@ public class Main_Activity extends AppCompatActivity
         permissions = new String[]{
                 Manifest.permission.INTERNET,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION};
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CALL_PHONE,
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.READ_SMS,
+                Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.READ_CONTACTS};
 
         if (ContextCompat.checkSelfPermission(this, String.valueOf(permissions)) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-            } else {
-                ActivityCompat.requestPermissions(this, permissions,
-                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-            }
+
+            ActivityCompat.requestPermissions(this, permissions,
+                    MY_PERMISSIONS_REQUEST_CODE);
+        } else {
+            getCurrentLocation();
+
+
         }
     }
 
-    public void startyelp() {
 
-        Intent in = new Intent(this, RestaurantIntentService.class);
-        in.putExtra("latitude", Latitude);
-        in.putExtra("longitude", Longitude);
-        startService(in);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CODE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    getCurrentLocation();
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    getCurrentLocation();
+
+                    Toast.makeText(this, "App can't work without location permission", Toast.LENGTH_SHORT).show();
+                    finish();
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+//             other 'case' lines to check for other
+//             permissions this app might request
+        }
+
     }
 
     @Override
     protected void onStart() {
         mGoogleApiClient.connect();
-        getToken();
         LocalBroadcastManager.getInstance(this).registerReceiver(brAddressGpsList, new IntentFilter("addressList"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(brRestaurantList, new IntentFilter("restaurantList"));
+        getToken();
         super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+//        getToken();
+        super.onResume();
     }
 
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
-        unregisterReceiver(broadcastReceiver);
-
         super.onStop();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(brRestaurantList);
+        super.onDestroy();
     }
 
     @Override
@@ -287,7 +297,6 @@ public class Main_Activity extends AppCompatActivity
 
         Latitude = (String.valueOf(location.getLatitude()));
         Longitude = (String.valueOf(location.getLongitude()));
-        Log.d(TAG, "onConnected: " + Latitude + " " + Longitude);
 
     }
 
@@ -308,9 +317,8 @@ public class Main_Activity extends AppCompatActivity
         mMap.setMyLocationEnabled(true);
 
 
-        Log.d(TAG, "onMapReady: " + Latitude + " " + Longitude);
+        //Log.d(TAG, "onMapReady: " + Latitude + " " + Longitude);
         LatLng sydney = new LatLng(Double.parseDouble(Latitude), Double.parseDouble(Longitude));
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.animateCamera(CameraUpdateFactory
                 .newLatLngZoom(sydney, 15));
 
@@ -328,7 +336,21 @@ public class Main_Activity extends AppCompatActivity
         double longitude = location.getLongitude();
         LatLng latLng = new LatLng(latitude, longitude);
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+
         Latitude = String.valueOf(latitude);
         Longitude = String.valueOf(longitude);
         myLoc.setLongitude(longitude);
@@ -373,15 +395,15 @@ public class Main_Activity extends AppCompatActivity
         if (id == R.id.nav_reserveTable) {
             // Handle the camera action
         } else if (id == R.id.nav_writeReview) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myReservations) {
-            Intent in = new Intent(getApplicationContext(), ActMyReservations.class);
+            Intent in = new Intent(getApplicationContext(), MyReservationsActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_myAccount) {
-            Intent in = new Intent(getApplicationContext(), ActAccount.class);
+            Intent in = new Intent(getApplicationContext(), UserAccountActivity.class);
             startActivity(in);
 
         } else if (id == R.id.nav_share) {
@@ -428,31 +450,55 @@ public class Main_Activity extends AppCompatActivity
         startService(intent);
 
     }
+
     //Members for below method
     List<String> addressName;
 
-    public class MyBroadcastReceiver extends BroadcastReceiver {
+    public void searchRestaurants(View view) {
 
+        String search = searchBox.getText().toString();
+        Intent intent = new Intent(this, RestaurantIntentService.class);
+        intent.putExtra("search", search);
+        intent.putExtra("latitude", Latitude);
+        intent.putExtra("longitude", Longitude);
+        startService(intent);
+    }
+
+    public BroadcastReceiver brRestaurantList = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
+            yelp_business1.clear();
+            yelp_business.clear();
             addressName = new ArrayList<>();
             Bundle bundle = intent.getExtras();
             yelpBusiness = (YelpBusiness) bundle.getSerializable("data");
             yelp_business = yelpBusiness.getBusinesses();
+
             yelp_business1.addAll(yelp_business);
             restaurantListAdapter.notifyDataSetChanged();
+
+            List<Coordinates> coordinates = new ArrayList<>();
+            LatLng resLatLng;
 
 
             for (Business b : yelp_business) {
                 addressName.add(b.getLocation().getDisplayAddress().toString());
+                Coordinates resLocation = b.getCoordinates();
+                resLatLng = new LatLng(resLocation.getLatitude(), resLocation.getLongitude());
+                mMap.addMarker(new MarkerOptions().position(resLatLng).title(b.getName()));
             }
-            getLatLongFromAddress(addressName);
 
+//            for(Coordinates c: coordinates)
+//            {
+//                resLatLng = new LatLng(c.getLatitude(), c.getLongitude());
+//                mMap.addMarker(new MarkerOptions().position(resLatLng).title());
+//               // Log.d(TAG, "onReceive: Location" + c.getLongitude() + " " + c.getLongitude());
+//
+//            }
+            //getLatLongFromAddress(addressName);
         }
-
-
-    }
+    };
 
     private void getLatLongFromAddress(List<String> address) {
 
@@ -466,14 +512,14 @@ public class Main_Activity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            Log.d(TAG, "onReceive: ");
             LatLng resLatLng;
             List<Location> resLocationList = intent.getParcelableArrayListExtra("addresses");
-            for(Location l : resLocationList){
-                resLatLng = new LatLng(l.getLatitude(),l.getLongitude());
+            for (Location l : resLocationList) {
+                resLatLng = new LatLng(l.getLatitude(), l.getLongitude());
                 mMap.addMarker(new MarkerOptions().position(resLatLng));
             }
 
         }
     };
+
 }

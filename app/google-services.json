@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "96669698319",
+    "firebase_url": "https://resplendent-heat-2353.firebaseio.com",
+    "project_id": "resplendent-heat-2353",
+    "storage_bucket": "resplendent-heat-2353.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:96669698319:android:cfc1642e0c19c704",
+        "android_client_info": {
+          "package_name": "com.example.manroop.ReRe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "96669698319-iv44dl4f22vassrscl7qs5m2rro28rso.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.manroop.ReRe",
+            "certificate_hash": "6326316AF053B967161A0889F5BA77F9236DD994"
+          }
+        },
+        {
+          "client_id": "96669698319-p48g6rqrti56buesjifa0r4bc3o05bob.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWo5A48SekPRlTjGTq02DqMT3F-LigMt0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "96669698319-p48g6rqrti56buesjifa0r4bc3o05bob.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

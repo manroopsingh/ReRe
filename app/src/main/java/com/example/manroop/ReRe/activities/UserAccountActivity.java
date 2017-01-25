@@ -19,8 +19,8 @@ import com.example.manroop.ReRe.R;
 public class UserAccountActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    EditText cell;
-    Button update;
+    private EditText cell;
+    private Button update;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

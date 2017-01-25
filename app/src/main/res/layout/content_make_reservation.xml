@@ -382,6 +382,11 @@
                         android:layout_weight="1"
                         android:onClick="searchOpenTable"
                         android:text="4 friends added" />
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FB"
+                        android:onClick="startfbActivity"/>
 
 
                 </LinearLayout>
@@ -406,11 +411,11 @@
 
 
                     <EditText
+                        android:ems="5"
                         android:id="@+id/enterCode"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_weight="1"
                         android:enabled="false"
                         android:gravity="center"
                         android:inputType="number"
@@ -418,9 +423,8 @@
                         android:visibility="invisible" />
 
                     <Button
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
                         android:onClick="searchOpenTable"
                         android:text="OpenTable" />
 

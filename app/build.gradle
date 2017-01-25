@@ -51,5 +51,6 @@ dependencies {
 // Because RxAndroid releases are few and far between, it is recommended you also
 // explicitly depend on RxJava's latest version for bug fixes and new features.
     compile 'io.reactivex:rxjava:1.1.6'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.design.widget.NavigationView;
@@ -51,6 +52,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.share.Sharer;
+import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.firebase.client.Firebase;
 import com.google.firebase.database.DatabaseReference;
@@ -401,21 +403,24 @@ public class MakeReservationActivity extends AppCompatActivity
 
                 Snackbar.make(v, "Reservation request sent!", Snackbar.LENGTH_SHORT).show();
 
+                setDelayedNotification();
 
-                Intent myIntent = new Intent(MakeReservationActivity.this, DelayedNotif.class);
-                myIntent.putExtra("restName", bizName);
-                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MakeReservationActivity.this, 0, myIntent, 0);
+                if (facebook.isChecked()) {
+                    Log.d(TAG, "onClick: fb check");
+                    if (ShareDialog.canShow(ShareLinkContent.class)) {
+                        Log.d(TAG, "onClick: canShow");
+                        ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                                .setContentTitle("Yay! I got my table at " + bizName)
+                                .setContentDescription("Never wait in line for tables with this amazing new app")
+                                .setContentUrl(Uri.parse("http://www.yelp.com/san-jose"))
+                                .build();
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month );
-                calendar.set(Calendar.DAY_OF_MONTH, day);
-                calendar.set(Calendar.HOUR_OF_DAY, hour - 1);
-                calendar.set(Calendar.MINUTE, minute);
-                calendar.set(Calendar.SECOND,0);
-                Log.d(TAG, "onClick: " + calendar.toString());
-                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                        shareDialog.show(linkContent);
+                    }
+
+                }
+
+
 
 
 
@@ -495,6 +500,22 @@ public class MakeReservationActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+    }
+
+    private void setDelayedNotification() {
+        Intent myIntent = new Intent(MakeReservationActivity.this, DelayedNotif.class);
+        myIntent.putExtra("restName", bizName);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MakeReservationActivity.this, 0, myIntent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month );
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        calendar.set(Calendar.HOUR_OF_DAY, hour - 1);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND,0);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
     }
 
     @Override
@@ -711,5 +732,11 @@ public class MakeReservationActivity extends AppCompatActivity
     public void inviteFriends(View view) {
         Intent intent = new Intent(this, InviteFriendsActivity.class);
         startActivity(intent);
+    }
+
+    public void startfbActivity(View view) {
+        Intent intent = new Intent(this, FBLoginActivity.class);
+        startActivity(intent);
+
     }
 }

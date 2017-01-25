@@ -20,8 +20,5 @@ public class InviteFriendsActivity extends AppCompatActivity {
         listViewContacts = (ListView) findViewById(R.id.listViewContacts);
 
 
-
-
-
     }
 }
